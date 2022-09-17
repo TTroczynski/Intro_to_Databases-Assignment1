@@ -46,130 +46,129 @@ int main(int argv, char* argc[]) {
 
 	HddEntry newEntry;
 	std::string key;
-	bool status = false;
+	int status = 0;
 	time_t start, stop;
 	std::string temp;
 	std::vector<std::unique_ptr<Entry>> results;
 	std::vector<Entry> randomRecords;
-	std::string count;
+	std::string generateCount;
+	int deleteCount = 0;
 
 	std::cout << "Welcome to the Simple File Editor" << std::endl;
 	std::cout << std::endl;
 
 	while (getOption(userInput) != OPT_EXIT) {
 
-		while (!dbEntry.isDirValid()) {
+		while (!dbEntry.set_filepath(filePath, FACTORY_TYPES::FT_HDD)) {
 
 			std::cout << "Please specify a file path:" << std::endl;
 
 			std::getline(std::cin, filePath, NEWLINE);
-			dbEntry.set_filepath(filePath, FACTORY_TYPES::FT_HDD);
 		}
 
-		if (dbEntry.isDirValid()) {
+		std::cout << std::endl << "Enter one of the following options:" << std::endl;
 
-			std::cout << std::endl << "Enter one of the following options:" << std::endl;
+		std::cout << "INSERT\t\tto add a record" << std::endl << "DELETE\t\tto remove a record" << std::endl
+			<< "FIND\t\tto search for multiple records" << std::endl << "RANDOM INSERT\tto generate a specified number of records"
+			<< std::endl << "STOP\t\tto exit" << std::endl;
 
-			std::cout << "INSERT\t\tto add a record" << std::endl << "DELETE\t\tto remove a record" << std::endl 
-				<< "FIND\t\tto search for multiple records" << std::endl << "RANDOM INSERT\tto generate a specified number of records"
-				<< std::endl << "STOP\t\tto exit" << std::endl;
+		std::getline(std::cin, userInput, NEWLINE);
 
-			std::getline(std::cin, userInput, NEWLINE);
+		switch (getOption(userInput))
+		{
+		case(OPT_A):
 
-			switch (getOption(userInput))
-			{
-			case(OPT_A):
+			newEntry = createHddEntryFromInput();
 
-				newEntry = createHddEntryFromInput();
-				
-				time_t start = clock();
-				status = dbEntry.save_entry(newEntry, FT_HDD);
-				time_t stop = clock();
-				
-				postElapsedTime(start, stop);
+			start = clock();
+			status = dbEntry.save_entry(newEntry, FT_HDD);
+			stop = clock();
 
-				if (status) {
-					std::cout << "Record inserted!" << std::endl;
-				}
-				else {
-					std::cout << "Failed to insert record..." << std::endl;
-				}
-				break;
+			postElapsedTime(start, stop);
 
-			case(OPT_B):
-
-				std::cout << std::endl;
-				std::cout << "Specify the SPSID of the record to delete: " << std::endl;
-				std::getline(std::cin, temp, NEWLINE);
-
-				start = clock();
-				status = dbEntry.delete_entry(FACTORY_TYPES::FT_HDD, temp);
-				stop = clock();
-
-				postElapsedTime(start, stop);
-				if (status) {
-					std::cout << "Record was deleted successfully" << std::endl;
-				}
-				else {
-					std::cout << "Failed to delete the record" << std::endl;
-				}
-
-				break;
-
-			case(OPT_C):
-
-				std::cout << "Enter an SPSID to search for: " << std::endl;
-				std::getline(std::cin, key, NEWLINE);
-
-				start = clock();
-				results = dbEntry.read_entry(FACTORY_TYPES::FT_HDD, key);
-				stop = clock();
-
-				postElapsedTime(start, stop);
-
-				if (status) {
-					std::cout << std::endl << "Record found!" << std::endl;
-					
-					for (std::unique_ptr<Entry>& record : results) {
-						std::cout << record->str();
-					}
-				}
-				else {
-					std::cout << std::endl << "Record not found..." << std::endl;
-				}
-				break;
-
-			case(OPT_D):
-
-				std::cout << "Enter the number of random records to generate:" << std::endl;
-				std::getline(std::cin, count);
-				
-				if (checkIsDigit(count)) {
-
-					start = clock();
-					randomRecords = generateRandom(std::stoi(count), FACTORY_TYPES::FT_HDD);
-
-					for (Entry& record : randomRecords) {
-						dbEntry.save_entry(record, FACTORY_TYPES::FT_HDD);
-					}
-					stop = clock();
-					postElapsedTime(start, stop);
-				}
-				else {
-					std::cout << "Please enter a valid number" << std::endl;
-				}
-				
-				break;
-
-			case(OPT_EXIT):
-				break;
-
-			default:
-				if (getOption(userInput) == OPT_ERROR) {
-					std::cout << "I dont understand that input..." << std::endl;
-				}
-				break;
+			if (status) {
+				std::cout << "Record inserted!" << std::endl;
 			}
+			else {
+				std::cout << "Failed to insert record..." << std::endl;
+			}
+			break;
+
+		case(OPT_B):
+
+			std::cout << std::endl;
+			std::cout << "Specify the SPSID of the record to delete: " << std::endl;
+			std::getline(std::cin, temp, NEWLINE);
+
+			start = clock();
+			deleteCount = dbEntry.delete_entry(FACTORY_TYPES::FT_HDD, temp);
+			stop = clock();
+
+			postElapsedTime(start, stop);
+			if (status) {
+				std::cout << deleteCount << " record(s) deleted successfully" << std::endl;
+			}
+			else {
+				std::cout << "Failed to delete the record" << std::endl;
+			}
+
+			break;
+
+		case(OPT_C):
+
+			std::cout << "Enter an SPSID to search for: " << std::endl;
+			std::getline(std::cin, key, NEWLINE);
+
+			start = clock();
+			results = dbEntry.read_entry(FACTORY_TYPES::FT_HDD, key);
+			stop = clock();
+
+			postElapsedTime(start, stop);
+
+			if (status) {
+				std::cout << std::endl << results.size() << " record(s) found!" << std::endl;
+
+				for (std::unique_ptr<Entry>& record : results) {
+					std::cout << record->str();
+				}
+			}
+			else {
+				std::cout << std::endl << "Record not found..." << std::endl;
+			}
+			break;
+
+		case(OPT_D):
+
+			std::cout << "Enter the number of random records to generate:" << std::endl;
+			std::getline(std::cin, generateCount, NEWLINE);
+
+			if (checkIsDigit(generateCount)) {
+
+				start = clock();
+				randomRecords = generateRandom(std::stoi(generateCount), FACTORY_TYPES::FT_HDD);
+
+				std::cout << std::endl << std::stoi(generateCount) << " records generated!" << std::endl;
+				
+				for (Entry& record : randomRecords) {
+					dbEntry.save_entry(record, FACTORY_TYPES::FT_HDD);
+				}
+				stop = clock();
+				postElapsedTime(start, stop);
+			}
+			else {
+				std::cout << "Please enter a valid number" << std::endl;
+			}
+
+			break;
+
+		case(OPT_EXIT):
+			break;
+
+		default:
+			if (getOption(userInput) == OPT_ERROR) {
+				std::cout << "I dont understand that input..." << std::endl;
+			}
+			break;
 		}
 	}
 

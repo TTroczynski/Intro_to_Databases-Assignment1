@@ -19,17 +19,20 @@ std::vector<std::unique_ptr<Entry>> HddEntryFactory::read(std::string key) const
 			records.push_back(getRecord(fileSearch, key));
 		}
 		fileSearch.close();
-
-		return records;
+	}
+	else {
+		abort(ERROR_READALL);
 	}
 
-	abort(ERROR_READALL);
+
+	return records;
+
 
 }
 
 int HddEntryFactory::deleteRecord(std::string key) const {
 
-	int count;
+	int count = 0;
 	std::fstream fileSearch;
 	std::fstream fileWrite;
 	std::string buffer;
@@ -71,7 +74,12 @@ bool HddEntryFactory::write(Entry& newEntry) const {
 	return false;
 }
 
-void HddEntryFactory::setFilePath(const std::string& path)
+bool HddEntryFactory::setFilePath(const std::string& path)
 {
-	filePath = path;
+	if (std::filesystem::exists(path)) {
+		filePath = path;
+		return true;
+	}
+	return false;
+	
 }

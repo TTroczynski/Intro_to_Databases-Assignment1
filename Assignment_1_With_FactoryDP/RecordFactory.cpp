@@ -26,7 +26,7 @@ bool RecordFactory::save_entry(Entry& entry, const int& type)
 	return db_factories[type]->write(entry);
 }
 
-void RecordFactory::set_filepath(std::string filePath, int type)
+bool RecordFactory::set_filepath(std::string filePath, int type)
 {
-	db_factories[type]->setFilePath(filePath);
+	return db_factories[type]->setFilePath(filePath);
 }

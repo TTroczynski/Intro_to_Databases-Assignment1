@@ -23,7 +23,7 @@ public:
 
 	bool save_entry(Entry& entry, const int& type);
 
-	void set_filepath(std::string, int type);
+	bool set_filepath(std::string, int type);
 
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "Entry.h"
 #include "Utils.h"
+#include <filesystem>
 
 struct EntryFactory
 {
@@ -8,7 +9,7 @@ struct EntryFactory
 	virtual std::vector<std::unique_ptr<Entry>> read(std::string key) const = 0;
 	virtual int deleteRecord(std::string key) const = 0;
 	virtual bool write(Entry&) const = 0;
-	virtual void setFilePath(const std::string&) = 0;
+	virtual bool setFilePath(const std::string&) = 0;
 };
 
 
@@ -29,5 +30,5 @@ public:
 
 	bool write(Entry& newEntry) const override;
 
-	void setFilePath(const std::string&) override;
+	bool setFilePath(const std::string&) override;
 };

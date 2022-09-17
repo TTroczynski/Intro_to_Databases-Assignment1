@@ -2,6 +2,8 @@
 #define DELIMITER ','
 #define NEWLINE '\n'
 #define ENTRYSIZE 5
+#define EMPTY ""
+#define NOVALUE 0
 
 #include <iostream>
 #include <sstream>
@@ -10,13 +12,8 @@
 
 struct Entry {
 
-protected:
-	std::string spsid;
-	int fieldId;
-	int iFuel;
-	int iProduct;
-	std::string productId;
-
+	Entry();
+ 
 public:
 	Entry(std::string, int, int, int, std::string);
 	virtual std::string str() = 0;
