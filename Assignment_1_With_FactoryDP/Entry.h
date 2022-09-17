@@ -12,6 +12,13 @@
 
 struct Entry {
 
+
+	std::string spsid;
+	int fieldId;
+	int iFuel;
+	int iProduct;
+	std::string productId;
+
 	Entry();
  
 public:

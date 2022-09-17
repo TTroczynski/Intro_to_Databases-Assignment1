@@ -76,10 +76,20 @@ bool HddEntryFactory::write(Entry& newEntry) const {
 
 bool HddEntryFactory::setFilePath(const std::string& path)
 {
-	if (std::filesystem::exists(path)) {
-		filePath = path;
-		return true;
+	std::fstream ofs;
+
+	std::filesystem::path newPath = path;
+	if (!newPath.has_filename()) {
+		ofs.open(path, std::ios_base::out);
+		if (ofs.is_open()) {
+			ofs.close();
+		}
+		else {
+			return false;
+		}
 	}
-	return false;
+	filePath = path;
+
+	return true;
 	
 }

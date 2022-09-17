@@ -5,7 +5,7 @@ HddEntry::HddEntry()
 {
 }
 
-HddEntry::HddEntry(std::string spsid, int fieldId, int iFuel, int iProduct, std::string productId) : spsid(spsid),  {}
+HddEntry::HddEntry(std::string spsid, int fieldId, int iFuel, int iProduct, std::string productId) : Entry(spsid, fieldId, iFuel, iProduct, productId) {}
 
 std::string HddEntry::str()
 {
@@ -19,9 +19,7 @@ std::string HddEntry::str()
 }
 
 
-Entry::Entry() : spsid(EMPTY), fieldId(NOVALUE), iFuel(NOVALUE), iProduct(NOVALUE), productId(EMPTY)
-{
-}
+Entry::Entry() : spsid(EMPTY), fieldId(NOVALUE), iFuel(NOVALUE), iProduct(NOVALUE), productId(EMPTY){}
 
 Entry::Entry(std::string spsid, int fieldId, int iFuel, int iProduct, std::string productId) : spsid(spsid), fieldId(fieldId), iFuel(iFuel), iProduct(iProduct), productId(productId) {}
 

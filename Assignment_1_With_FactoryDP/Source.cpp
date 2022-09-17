@@ -23,7 +23,7 @@ enum Options { OPT_A, OPT_B, OPT_C, OPT_D, OPT_E, OPT_EXIT, OPT_ERROR };
 
 int getOption(std::string);
 void postElapsedTime(time_t, time_t);
-std::vector<Entry> generateRandom(int numberOfRecords, int type);
+std::vector<HddEntry> generateRandomHdd(int numberOfRecords);
 std::string getRandomSpsid();
 std::string getRandomProductID();
 bool checkAlphanumeric(std::string);
@@ -50,7 +50,7 @@ int main(int argv, char* argc[]) {
 	time_t start, stop;
 	std::string temp;
 	std::vector<std::unique_ptr<Entry>> results;
-	std::vector<Entry> randomRecords;
+	std::vector<HddEntry> randomRecords;
 	std::string generateCount;
 	int deleteCount = 0;
 
@@ -145,7 +145,7 @@ int main(int argv, char* argc[]) {
 			if (checkIsDigit(generateCount)) {
 
 				start = clock();
-				randomRecords = generateRandom(std::stoi(generateCount), FACTORY_TYPES::FT_HDD);
+				randomRecords = generateRandomHdd(std::stoi(generateCount));
 
 				std::cout << std::endl << std::stoi(generateCount) << " records generated!" << std::endl;
 				
@@ -201,26 +201,23 @@ void postElapsedTime(time_t start, time_t stop) {
 	std::cout << std::endl << "Time elapsed: " << double(stop - start) / CLOCKS_PER_SEC << " seconds" << std::endl;
 }
 
-std::vector<Entry> generateRandom(int numberOfRecords, int type) {
+std::vector<HddEntry> generateRandomHdd(int numberOfRecords) {
 
-	std::vector<Entry> newRecords;
+	std::vector<HddEntry> newRecords;
 
-	if (type == FACTORY_TYPES::FT_HDD) {
-		for (int i = 0; i < numberOfRecords; i++) {
+	for (int i = 0; i < numberOfRecords; i++) {
 
-			std::string newSpsid, newProductId;
-			int newFieldId, newIFuel, newIProduct;
+		std::string newSpsid, newProductId;
+		int newFieldId, newIFuel, newIProduct;
 
-			newSpsid = getRandomSpsid();
-			newFieldId = rand() % (MAX_FIELDID_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
-			newIFuel = rand() % (MAX_IFUEL_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
-			newIProduct = rand() % (MAX_IPRODUCT_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
-			newProductId = getRandomProductID();
+		newSpsid = getRandomSpsid();
+		newFieldId = rand() % (MAX_FIELDID_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
+		newIFuel = rand() % (MAX_IFUEL_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
+		newIProduct = rand() % (MAX_IPRODUCT_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
+		newProductId = getRandomProductID();
 
-			newRecords.push_back(HddEntry(newSpsid, newFieldId, newIFuel, newIProduct, newProductId));
-		}
+		newRecords.push_back(HddEntry(newSpsid, newFieldId, newIFuel, newIProduct, newProductId));
 	}
-	
 	return newRecords;
 }
 
@@ -297,13 +294,23 @@ HddEntry createHddEntryFromInput()
 	std::string newFieldId;
 	std::string newIFuel;
 	std::string newIProduct;
-	std::string newIProductId;
+	std::string newProductId;
 
 
-	auto checkSpsid = [](std::string spsid) -> bool {
-		for (int i = 0; i < spsid.size(); ++i) {
-			if (isalnum(spsid.at(i))) {
-				std::cout << "SPSID must be alphanumeric!" << std::endl;
+	auto checkString = [](std::string userInput) -> bool {
+		for (int i = 0; i < userInput.size(); ++i) {
+			if (!isalnum(userInput.at(i))) {
+				std::cout << "Please enter an alphanumeric value!" << std::endl;
+				return false;
+			}
+		}
+		return true;
+	};
+
+	auto checkInteger = [](std::string userInput) -> bool {
+		for (int i = 0; i < userInput.size(); ++i) {
+			if (!isdigit(userInput.at(i))) {
+				std::cout << "Please enter an integer value!" << std::endl;
 				return false;
 			}
 		}
@@ -314,77 +321,33 @@ HddEntry createHddEntryFromInput()
 		std::cout << "Enter a SPSID: " << std::endl;
 		std::getline(std::cin, newSpsid, NEWLINE);
 
-	} while (!checkSpsid(newSpsid));
-
-
-	auto checkFieldId = [](std::string fieldId) -> bool {
-		for (int i = 0; i < fieldId.size(); ++i) {
-			if (isdigit(fieldId.at(i))) {
-				std::cout << "FieldID must be numeric!" << std::endl;
-				return false;
-			}
-		}
-		return true;
-	};
+	} while (!checkString(newSpsid));
 
 	do {
 		std::cout << "Enter a fieldID: " << std::endl;
 		std::getline(std::cin, newFieldId, NEWLINE);
 
-	} while (!checkFieldId(newFieldId));
-
-
-	auto checkIFuel = [](std::string iFuel) -> bool {
-		for (int i = 0; i < iFuel.size(); ++i) {
-			if (isdigit(iFuel.at(i))) {
-				std::cout << "iFuel must be numeric!" << std::endl;
-				return false;
-			}
-		}
-		return true;
-	};
+	} while (!checkInteger(newFieldId));
 
 	do {
 		std::cout << "Enter a IFuel: " << std::endl;
 		std::getline(std::cin, newIFuel, NEWLINE);
 
-	} while (!checkIFuel(newIFuel));
-
-
-	auto checkIProduct = [](std::string iProduct) -> bool {
-		for (int i = 0; i < iProduct.size(); ++i) {
-			if (isdigit(iProduct.at(i))) {
-				std::cout << "iProduct must be numeric!" << std::endl;
-				return false;
-			}
-		}
-		return true;
-	};
+	} while (!checkInteger(newIFuel));
 
 	do {
 		std::cout << "Enter an IProduct: " << std::endl;
 		std::getline(std::cin, newIProduct, NEWLINE);
 
-	} while (!checkIProduct(newIProductId));
-
-
-	auto checkIProductId = [](std::string iProductId) -> bool {
-		for (int i = 0; i < iProductId.size(); ++i) {
-			if (isalnum(iProductId.at(i))) {
-				std::cout << "iProductId must be alphanumeric!" << std::endl;
-				return false;
-			}
-		}
-		return true;
-	};
+	} while (!checkInteger(newIProduct));
 
 	do {
-		std::cout << "Enter an IProduct: " << std::endl;
-		std::getline(std::cin, newIProductId, NEWLINE);
+		std::cout << "Enter an productId: " << std::endl;
+		std::getline(std::cin, newProductId, NEWLINE);
 
-	} while (!checkIProductId(newIProductId));
+	} while (!checkString(newProductId));
 
-	HddEntry newRecord(newSpsid, std::stoi(newFieldId), std::stoi(newIFuel), std::stoi(newIProduct), newIProductId);
+	HddEntry newRecord(newSpsid, std::stoi(newFieldId), std::stoi(newIFuel), std::stoi(newIProduct), newProductId);
 
 	return newRecord;
 }
