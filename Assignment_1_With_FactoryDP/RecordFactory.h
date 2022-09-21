@@ -15,7 +15,7 @@ public:
 	RecordFactory();					//add any kind of factory. This allows you to easily extend. Just implement the pure virtual class and write the factory specific implementation
 										//for each overridden method.
 
-	std::unique_ptr<Entry> create_entry(const int& type);
+	std::unique_ptr<Entry> create_entry(const int& type, std::string, int, int, int, std::string);
 
 	std::vector<std::unique_ptr<Entry>> read_entry(const int& type, std::string key);
 

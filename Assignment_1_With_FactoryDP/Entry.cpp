@@ -14,8 +14,46 @@ std::string HddEntry::str()
 	oss << fieldId << std::endl;
 	oss << iFuel << std::endl;
 	oss << iProduct << std::endl;
-	oss << productId << std::endl;
+	oss << productId;
 	return oss.str();
+}
+
+std::string HddEntry::getSpsid() const
+{
+	return spsid;
+}
+
+int HddEntry::getFieldId() const
+{
+	return fieldId;
+}
+
+int HddEntry::getIFuel() const
+{
+	return iFuel;
+}
+
+int HddEntry::getIProduct() const
+{
+	return iProduct;
+}
+
+std::string HddEntry::getProductId() const
+{
+	return productId;
+}
+
+HddEntry& HddEntry::operator=(const HddEntry& other)
+{
+	if (this != &other) {
+		spsid = other.getSpsid();
+		fieldId = other.getFieldId();
+		iFuel = other.getIFuel();
+		iProduct = other.getIProduct();
+		productId = other.getProductId();
+		return *this;
+	}
+	return *this;
 }
 
 

@@ -32,6 +32,12 @@ struct HddEntry : public Entry {
 	HddEntry();
 	HddEntry(std::string, int, int, int, std::string);
 	std::string str() override;
-										//change to take values as params. lets you resuse this to randomly generate without running through prompts
-										//put user input into its own file
+
+	std::string getSpsid() const;
+	int getFieldId() const;
+	int getIFuel() const;
+	int getIProduct() const;
+	std::string getProductId() const;
+										
+	HddEntry& operator=(const HddEntry& other);
 };

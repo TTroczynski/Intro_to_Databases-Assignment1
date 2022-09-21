@@ -18,6 +18,14 @@
 #define FINDALL_CMD "FINDALL"
 #define RANDOMINSERT_CMD "RANDOM INSERT"
 #define STOP_CMD "STOP"
+#define SPSID_LENGTH 24
+#define MAX_PRODUCTID 24
+#define MAX_FIELDID 255
+#define MAX_IFUEL 350
+#define MAX_IPRODUCT 1200
+#define MIN_LENGTH 1
+#define DEFAULT_STRING "ERROR"
+
 
 enum Options { OPT_A, OPT_B, OPT_C, OPT_D, OPT_E, OPT_EXIT, OPT_ERROR };
 
@@ -73,6 +81,7 @@ int main(int argv, char* argc[]) {
 			<< std::endl << "STOP\t\tto exit" << std::endl;
 
 		std::getline(std::cin, userInput, NEWLINE);
+		std::cout << NEWLINE;
 
 		switch (getOption(userInput))
 		{
@@ -105,7 +114,7 @@ int main(int argv, char* argc[]) {
 			stop = clock();
 
 			postElapsedTime(start, stop);
-			if (status) {
+			if (deleteCount) {
 				std::cout << deleteCount << " record(s) deleted successfully" << std::endl;
 			}
 			else {
@@ -125,12 +134,13 @@ int main(int argv, char* argc[]) {
 
 			postElapsedTime(start, stop);
 
-			if (status) {
-				std::cout << std::endl << results.size() << " record(s) found!" << std::endl;
+			if (!results.empty()) {
+				std::cout << results.size() << " record(s) found!" << std::endl;
 
 				for (std::unique_ptr<Entry>& record : results) {
 					std::cout << record->str();
 				}
+				std::cout << std::endl;
 			}
 			else {
 				std::cout << std::endl << "Record not found..." << std::endl;
@@ -198,7 +208,7 @@ int getOption(std::string input) {
 }
 
 void postElapsedTime(time_t start, time_t stop) {
-	std::cout << std::endl << "Time elapsed: " << double(stop - start) / CLOCKS_PER_SEC << " seconds" << std::endl;
+	std::cout << std::endl << "Time elapsed: " << double((stop - start) / CLOCKS_PER_SEC) << " seconds" << std::endl;
 }
 
 std::vector<HddEntry> generateRandomHdd(int numberOfRecords) {
@@ -245,6 +255,8 @@ std::string getRandomSpsid() {
 		return "CASE4430";
 		break;
 	}
+
+	return DEFAULT_STRING;
 }
 
 std::string getRandomProductID() {
@@ -263,6 +275,8 @@ std::string getRandomProductID() {
 		return "SYNMaxim";
 		break;
 	}
+
+	return DEFAULT_STRING;
 }
 
 bool checkAlphanumeric(std::string input) {
@@ -317,35 +331,36 @@ HddEntry createHddEntryFromInput()
 		return true;
 	};
 
+
 	do {
-		std::cout << "Enter a SPSID: " << std::endl;
+		std::cout << "Enter a 24 character alphanumeric SPSID: " << std::endl;
 		std::getline(std::cin, newSpsid, NEWLINE);
 
-	} while (!checkString(newSpsid));
+	} while (!checkString(newSpsid) || MIN_LENGTH > newSpsid.length() || newSpsid.length() > SPSID_LENGTH);
 
 	do {
-		std::cout << "Enter a fieldID: " << std::endl;
+		std::cout << "Enter a fieldID (1-255): " << std::endl;
 		std::getline(std::cin, newFieldId, NEWLINE);
 
-	} while (!checkInteger(newFieldId));
+	} while (!checkInteger(newFieldId) || MIN_LENGTH > std::stoi(newFieldId) || std::stoi(newFieldId) > MAX_FIELDID);
 
 	do {
-		std::cout << "Enter a IFuel: " << std::endl;
+		std::cout << "Enter a IFuel (1-350): " << std::endl;
 		std::getline(std::cin, newIFuel, NEWLINE);
 
-	} while (!checkInteger(newIFuel));
+	} while (!checkInteger(newIFuel) || MIN_LENGTH > std::stoi(newIFuel) || std::stoi(newIFuel) > MAX_IFUEL);
 
 	do {
-		std::cout << "Enter an IProduct: " << std::endl;
+		std::cout << "Enter an IProduct (1-1200): " << std::endl;
 		std::getline(std::cin, newIProduct, NEWLINE);
 
-	} while (!checkInteger(newIProduct));
+	} while (!checkInteger(newIProduct) || MIN_LENGTH > std::stoi(newIProduct) || std::stoi(newIProduct) > MAX_IPRODUCT);
 
 	do {
-		std::cout << "Enter an productId: " << std::endl;
+		std::cout << "Enter a 24 character alphanumeric productId: " << std::endl;
 		std::getline(std::cin, newProductId, NEWLINE);
 
-	} while (!checkString(newProductId));
+	} while (!checkString(newProductId) || MIN_LENGTH > newProductId.length() || newProductId.length() > MAX_PRODUCTID);
 
 	HddEntry newRecord(newSpsid, std::stoi(newFieldId), std::stoi(newIFuel), std::stoi(newIProduct), newProductId);
 

@@ -1,8 +1,8 @@
 #include "EntryFactory.h"
 
-std::unique_ptr<Entry> HddEntryFactory::create() const
+std::unique_ptr<Entry> HddEntryFactory::create(std::string spsid, int iFieldId, int iFuel, int iProduct, std::string productId) const
 {
-	return std::make_unique<HddEntry>();
+	return std::make_unique<HddEntry>(spsid, iFieldId, iFuel, iProduct, productId);
 }
 
 std::vector<std::unique_ptr<Entry>> HddEntryFactory::read(std::string key) const
@@ -64,6 +64,7 @@ bool HddEntryFactory::write(Entry& newEntry) const {
 
 	if (fileOut.is_open()) {
 
+		fileOut << NEWLINE;
 		fileOut << newEntry.str();
 
 		fileOut.close();
@@ -76,20 +77,17 @@ bool HddEntryFactory::write(Entry& newEntry) const {
 
 bool HddEntryFactory::setFilePath(const std::string& path)
 {
-	std::fstream ofs;
+std::fstream ofs;
 
 	std::filesystem::path newPath = path;
-	if (!newPath.has_filename()) {
-		ofs.open(path, std::ios_base::out);
+
+	if (newPath.has_filename()) {
+		ofs.open(path, std::ios_base::app);
 		if (ofs.is_open()) {
 			ofs.close();
-		}
-		else {
-			return false;
+			return true;
 		}
 	}
-	filePath = path;
-
-	return true;
+	return false;
 	
 }

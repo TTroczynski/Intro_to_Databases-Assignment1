@@ -5,7 +5,7 @@
 
 struct EntryFactory
 {
-	virtual std::unique_ptr<Entry> create() const = 0;
+	virtual std::unique_ptr<Entry> create(std::string, int, int, int, std::string) const = 0;
 	virtual std::vector<std::unique_ptr<Entry>> read(std::string key) const = 0;
 	virtual int deleteRecord(std::string key) const = 0;
 	virtual bool write(Entry&) const = 0;
@@ -22,7 +22,7 @@ public:
 
 	enum ERROR { ERROR_CREATE, ERROR_READ, ERROR_READALL, ERROR_DELETE, ERROR_WRITE, ERROR_UNKNOWN };
 
-	std::unique_ptr<Entry> create() const override;
+	std::unique_ptr<Entry> create(std::string, int, int, int, std::string) const override;
 
 	std::vector<std::unique_ptr<Entry>> read(std::string key) const override;
 
