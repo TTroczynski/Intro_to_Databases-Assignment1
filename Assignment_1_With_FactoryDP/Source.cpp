@@ -25,13 +25,14 @@
 #define MAX_IPRODUCT 1200
 #define MIN_LENGTH 1
 #define DEFAULT_STRING "ERROR"
+#define PRECISION 3
 
 
 enum Options { OPT_A, OPT_B, OPT_C, OPT_D, OPT_E, OPT_EXIT, OPT_ERROR };
 
 int getOption(std::string);
 void postElapsedTime(time_t, time_t);
-std::vector<HddEntry> generateRandomHdd(int numberOfRecords);
+void generateRandomHdd(int numberOfRecords, std::vector<HddEntry>&);
 std::string getRandomSpsid();
 std::string getRandomProductID();
 bool checkAlphanumeric(std::string);
@@ -41,10 +42,10 @@ bool checkIsDigit(std::string);
 
 int main(int argv, char* argc[]) {
 
-	//if (argv != MAX_COMMANDS || std::string(argc[MAX_COMMANDS - 1]) != START_CMD) {
-	//	std::cerr << "Syntax is: [Program] START" << std::endl;
-	//	exit(EXIT_FAILURE);
-	//}
+	if (argv != MAX_COMMANDS || std::string(argc[MAX_COMMANDS - 1]) != START_CMD) {
+		std::cerr << "Syntax is: [Program] START" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	std::srand(clock());
 
@@ -69,7 +70,7 @@ int main(int argv, char* argc[]) {
 
 		while (!dbEntry.set_filepath(filePath, FACTORY_TYPES::FT_HDD)) {
 
-			std::cout << "Please specify a file path:" << std::endl;
+			std::cout << "Please specify a file path:" << std::endl << ">";
 
 			std::getline(std::cin, filePath, NEWLINE);
 		}
@@ -78,7 +79,7 @@ int main(int argv, char* argc[]) {
 
 		std::cout << "INSERT\t\tto add a record" << std::endl << "DELETE\t\tto remove a record" << std::endl
 			<< "FIND\t\tto search for multiple records" << std::endl << "RANDOM INSERT\tto generate a specified number of records"
-			<< std::endl << "STOP\t\tto exit" << std::endl;
+			<< std::endl << "STOP\t\tto exit" << std::endl << std::endl << ">";
 
 		std::getline(std::cin, userInput, NEWLINE);
 		std::cout << NEWLINE;
@@ -106,7 +107,7 @@ int main(int argv, char* argc[]) {
 		case(OPT_B):
 
 			std::cout << std::endl;
-			std::cout << "Specify the SPSID of the record to delete: " << std::endl;
+			std::cout << "Specify the SPSID of the record to delete: " << std::endl << ">";
 			std::getline(std::cin, temp, NEWLINE);
 
 			start = clock();
@@ -125,7 +126,7 @@ int main(int argv, char* argc[]) {
 
 		case(OPT_C):
 
-			std::cout << "Enter an SPSID to search for: " << std::endl;
+			std::cout << "Enter an SPSID to search for: " << std::endl << ">";
 			std::getline(std::cin, key, NEWLINE);
 
 			start = clock();
@@ -135,12 +136,13 @@ int main(int argv, char* argc[]) {
 			postElapsedTime(start, stop);
 
 			if (!results.empty()) {
-				std::cout << results.size() << " record(s) found!" << std::endl;
+				std::cout << results.size() << " record(s) found!" << std::endl << std::endl;
 
 				for (std::unique_ptr<Entry>& record : results) {
-					std::cout << record->str();
+					
+					if(record.get())
+					std::cout << record->str() << std::endl << std::endl;
 				}
-				std::cout << std::endl;
 			}
 			else {
 				std::cout << std::endl << "Record not found..." << std::endl;
@@ -149,13 +151,13 @@ int main(int argv, char* argc[]) {
 
 		case(OPT_D):
 
-			std::cout << "Enter the number of random records to generate:" << std::endl;
+			std::cout << "Enter the number of random records to generate:" << std::endl << ">";
 			std::getline(std::cin, generateCount, NEWLINE);
 
 			if (checkIsDigit(generateCount)) {
 
 				start = clock();
-				randomRecords = generateRandomHdd(std::stoi(generateCount));
+				generateRandomHdd(std::stoi(generateCount), randomRecords);
 
 				std::cout << std::endl << std::stoi(generateCount) << " records generated!" << std::endl;
 				
@@ -181,6 +183,7 @@ int main(int argv, char* argc[]) {
 			break;
 		}
 	}
+	std::cout << "Exiting!" << std::endl;
 
 	return 0;
 }
@@ -208,12 +211,11 @@ int getOption(std::string input) {
 }
 
 void postElapsedTime(time_t start, time_t stop) {
-	std::cout << std::endl << "Time elapsed: " << double((stop - start) / CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout.precision(PRECISION);
+	std::cout << std::fixed << std::endl << "Time elapsed: " << double(stop - start) / CLOCKS_PER_SEC << " seconds" << std::endl;
 }
 
-std::vector<HddEntry> generateRandomHdd(int numberOfRecords) {
-
-	std::vector<HddEntry> newRecords;
+void generateRandomHdd(int numberOfRecords, std::vector<HddEntry>& destination) {
 
 	for (int i = 0; i < numberOfRecords; i++) {
 
@@ -226,9 +228,8 @@ std::vector<HddEntry> generateRandomHdd(int numberOfRecords) {
 		newIProduct = rand() % (MAX_IPRODUCT_VAL - MIN_INT_VAL + 1) + MIN_INT_VAL;
 		newProductId = getRandomProductID();
 
-		newRecords.push_back(HddEntry(newSpsid, newFieldId, newIFuel, newIProduct, newProductId));
+		destination.push_back(HddEntry(newSpsid, newFieldId, newIFuel, newIProduct, newProductId));
 	}
-	return newRecords;
 }
 
 std::string getRandomSpsid() {
@@ -333,31 +334,31 @@ HddEntry createHddEntryFromInput()
 
 
 	do {
-		std::cout << "Enter a 24 character alphanumeric SPSID: " << std::endl;
+		std::cout << "Enter a 24 character alphanumeric SPSID: " << std::endl << ">";
 		std::getline(std::cin, newSpsid, NEWLINE);
 
 	} while (!checkString(newSpsid) || MIN_LENGTH > newSpsid.length() || newSpsid.length() > SPSID_LENGTH);
 
 	do {
-		std::cout << "Enter a fieldID (1-255): " << std::endl;
+		std::cout << "Enter a fieldID (1-255): " << std::endl << ">";
 		std::getline(std::cin, newFieldId, NEWLINE);
 
 	} while (!checkInteger(newFieldId) || MIN_LENGTH > std::stoi(newFieldId) || std::stoi(newFieldId) > MAX_FIELDID);
 
 	do {
-		std::cout << "Enter a IFuel (1-350): " << std::endl;
+		std::cout << "Enter a IFuel (1-350): " << std::endl << ">";
 		std::getline(std::cin, newIFuel, NEWLINE);
 
 	} while (!checkInteger(newIFuel) || MIN_LENGTH > std::stoi(newIFuel) || std::stoi(newIFuel) > MAX_IFUEL);
 
 	do {
-		std::cout << "Enter an IProduct (1-1200): " << std::endl;
+		std::cout << "Enter an IProduct (1-1200): " << std::endl << ">";
 		std::getline(std::cin, newIProduct, NEWLINE);
 
 	} while (!checkInteger(newIProduct) || MIN_LENGTH > std::stoi(newIProduct) || std::stoi(newIProduct) > MAX_IPRODUCT);
 
 	do {
-		std::cout << "Enter a 24 character alphanumeric productId: " << std::endl;
+		std::cout << "Enter a 24 character alphanumeric productId: " << std::endl << ">";
 		std::getline(std::cin, newProductId, NEWLINE);
 
 	} while (!checkString(newProductId) || MIN_LENGTH > newProductId.length() || newProductId.length() > MAX_PRODUCTID);

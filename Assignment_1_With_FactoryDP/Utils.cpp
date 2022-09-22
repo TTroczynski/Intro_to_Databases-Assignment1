@@ -2,14 +2,15 @@
 
 std::unique_ptr<HddEntry> getRecord(std::fstream& fs, std::string key)
 {
-	std::unique_ptr<HddEntry> record;
+	std::unique_ptr<HddEntry> record = nullptr;
 	std::string temp;
 
 	std::string newSpsid, newProductId, newFieldId, newIFuel, newIProduct;
 
-	while (std::getline(fs, temp)) {
-		if (temp == key) {
+	while (std::getline(fs, temp, NEWLINE)) {
+		if (temp == (key + DELIMITER)) {
 
+			temp.erase(temp.begin() + temp.find(DELIMITER));
 			newSpsid = temp;
 			std::getline(fs, newFieldId);
 			std::getline(fs, newIFuel);
@@ -30,7 +31,7 @@ int removeRecords(std::fstream& fs, std::string key, std::string& buffer) {
 
 	while (std::getline(fs, temp)) {
 
-		if (temp != key) {
+		if (temp != (key + DELIMITER)) {
 
 			buffer.append(temp);
 			buffer.push_back(char(NEWLINE));
@@ -44,29 +45,4 @@ int removeRecords(std::fstream& fs, std::string key, std::string& buffer) {
 		}
 	}
 	return count;
-}
-
-
-void abort(int error)
-{
-	switch (error)
-	{
-	case 1:
-
-		break;
-	case 2:
-
-		break;
-	case 3:
-
-		break;
-	case 4:
-
-		break;
-	case 5:
-
-		break;
-	default:
-		break;
-	}
 }

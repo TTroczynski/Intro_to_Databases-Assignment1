@@ -1,5 +1,5 @@
 #pragma once
-#define DELIMITER ','
+#define DELIMITER ","
 #define NEWLINE '\n'
 #define ENTRYSIZE 5
 #define EMPTY ""

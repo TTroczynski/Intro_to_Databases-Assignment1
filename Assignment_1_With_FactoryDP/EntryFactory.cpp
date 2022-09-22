@@ -16,18 +16,16 @@ std::vector<std::unique_ptr<Entry>> HddEntryFactory::read(std::string key) const
 
 		while (!fileSearch.eof()) {
 
-			records.push_back(getRecord(fileSearch, key));
+			std::unique_ptr<HddEntry> newHddEntry = getRecord(fileSearch, key);
+			
+			if (newHddEntry != nullptr) {
+			records.push_back(std::make_unique<HddEntry>(newHddEntry->spsid, newHddEntry->fieldId, newHddEntry->iFuel, newHddEntry->iProduct, newHddEntry->productId));
+			}
 		}
 		fileSearch.close();
 	}
-	else {
-		abort(ERROR_READALL);
-	}
-
 
 	return records;
-
-
 }
 
 int HddEntryFactory::deleteRecord(std::string key) const {
@@ -59,13 +57,16 @@ int HddEntryFactory::deleteRecord(std::string key) const {
 
 bool HddEntryFactory::write(Entry& newEntry) const {
 
+	std::string temp;
 	std::fstream fileOut;
 	fileOut.open(filePath, std::ios_base::app);
 
 	if (fileOut.is_open()) {
 
+		
+		temp = newEntry.str();
 		fileOut << NEWLINE;
-		fileOut << newEntry.str();
+		fileOut << newEntry.str().insert(temp.find(NEWLINE), DELIMITER);
 
 		fileOut.close();
 
@@ -85,6 +86,7 @@ std::fstream ofs;
 		ofs.open(path, std::ios_base::app);
 		if (ofs.is_open()) {
 			ofs.close();
+			filePath = path;
 			return true;
 		}
 	}
